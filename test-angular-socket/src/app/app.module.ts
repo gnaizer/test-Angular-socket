@@ -1,3 +1,4 @@
+import { ChatService } from './core/services/chat.service';
 import { SocketService } from './core/services/socket.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -18,7 +19,8 @@ import { AppComponent } from './app.component';
     HttpClientModule
   ],
   providers: [
-    SocketService
+    SocketService,
+    ChatService
   ],
   bootstrap: [AppComponent]
 })

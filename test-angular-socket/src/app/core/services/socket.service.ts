@@ -1,27 +1,31 @@
+import { environment } from './../../../environments/environment';
 import { Injectable } from '@angular/core';
 import * as io from 'socket.io-client';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Injectable()
 export class SocketService {
-    private url = 'http://localhost:3000';
     private socket: any;
 
-    constructor() {
-        this.socket = io(this.url);
-    }
+    constructor() { }
 
-    public sendMessage(message) {
-        this.socket.emit('new-message', message);
-    }
-
-    public getMessages = () => {
-        return Observable.create((observer) => {
-            this.socket.on('new-message', (message) => {
-                observer.next(message);
-                console.log(message);
+    public connect(): Subject<MessageEvent> {
+        this.socket = io(environment.url);
+        const observable = new Observable(observer => {
+            this.socket.on('message', (data) => {
+                console.log('Received message from Websocket Server');
+                observer.next(data);
             });
+            return () => {
+                this.socket.disconnect();
+            };
         });
+        const observer = {
+            next: (data: {}) => {
+                this.socket.emit('message', JSON.stringify(data));
+            },
+        };
+        return Subject.create(observer, observable);
     }
 
 }

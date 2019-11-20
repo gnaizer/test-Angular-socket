@@ -1,22 +1,26 @@
-let express = require('express')
-let app = express();
+let app = require("express")();
+let http = require("http").Server(app);
+let io = require("socket.io")(http);
 
-let http = require('http');
-let server = http.Server(app);
+io.on("connection", socket => {
+  // Log whenever a user connects
+  console.log("user connected");
 
-let socketIO = require('socket.io');
-let io = socketIO(server);
+  // Log whenever a client disconnects from our websocket server
+  socket.on("disconnect", function() {
+    console.log("user disconnected");
+  });
 
-const port = process.env.PORT || 3000;
-
-io.on('connection', (socket) => {
-    console.log('user connected');
-
-    socket.on('new-message', (message) => {
-      io.emit(message)
-    });
+  // When we receive a 'message' event from our client, print out
+  // the contents of that message and then echo it back to our client
+  // using `io.emit()`
+  socket.on("message", message => {
+    console.log("Message Received: " + message);
+    io.emit("message", { type: "new-message", text: message });
+  });
 });
 
-server.listen(port, () => {
-    console.log(`started on port: ${port}`);
+// Initialize our websocket server on port 5000
+http.listen(5000, () => {
+  console.log("started on port 5000");
 });

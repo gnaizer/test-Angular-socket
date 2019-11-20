@@ -1,5 +1,5 @@
-import { SocketService } from './core/services/socket.service';
 import { Component, OnInit } from '@angular/core';
+import { ChatService } from './core/services/chat.service';
 
 @Component({
   selector: 'app-root',
@@ -7,20 +7,20 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  public messages: any[] = [];
   public message: string;
-  public messages: string[] = [];
 
-  constructor(private socketService: SocketService) {}
-
-  public sendMessage() {
-    this.socketService.sendMessage(this.message);
-    this.message = '';
-  }
+  constructor(private chat: ChatService) { }
 
   ngOnInit() {
-    this.socketService.getMessages().subscribe((message: string) => {
-      this.messages.push(message);
+    this.chat.messages.subscribe(msg => {
+      this.messages.push(msg);
+      console.log(msg);
     });
-    console.log(this.messages);
+  }
+
+  public sendMessage() {
+    this.chat.sendMsg(this.message);
+    this.message = '';
   }
 }
